@@ -1,15 +1,17 @@
-FROM python:3
+FROM python:3.10-slim
 
-WORKDIR /data
+# Set work directory
+WORKDIR /app
 
-RUN pip install django==3.2
+# Install dependencies first (better caching)
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy project files
+COPY . /app/
 
-RUN python manage.py migrate
-
+# Expose port
 EXPOSE 8000
 
-CMD ["python","manage.py","runserver","0.0.0.0:8000"]
-
-
+# Run migrations + server
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
